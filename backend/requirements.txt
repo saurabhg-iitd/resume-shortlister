@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pdfplumber
+python-multipart
+openai
+python-dotenv
+psycopg2-binary
+sqlalchemy
+boto3
+twilio

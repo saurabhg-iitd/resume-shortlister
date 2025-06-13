@@ -1,0 +1,106 @@
+// Directory: resume-shortlister/frontend
+
+// === package.json ===
+{
+  "name": "resume-shortlister-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "next": "14.0.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21"
+  }
+}
+
+// === tailwind.config.js ===
+module.exports = {
+  content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+// === postcss.config.js ===
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
+// === styles/globals.css ===
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// === pages/_app.js ===
+import '../styles/globals.css'
+
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+
+// === pages/index.js ===
+import { useState } from 'react'
+import axios from 'axios'
+
+export default function Home() {
+  const [jd, setJd] = useState('')
+  const [resumes, setResumes] = useState([])
+  const [results, setResults] = useState([])
+
+  const handleJDSubmit = async () => {
+    await axios.post('http://localhost:8000/upload_jd', new URLSearchParams({ text: jd }))
+    alert('JD uploaded!')
+  }
+
+  const handleResumeUpload = async (e) => {
+    const files = e.target.files
+    for (let file of files) {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await axios.post('http://localhost:8000/upload_resume', formData)
+      setResumes((prev) => [...prev, res.data.parsed])
+    }
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-4">Resume Shortlister</h1>
+
+      <textarea
+        className="w-full border p-2 rounded mb-4"
+        rows={6}
+        placeholder="Paste Job Description here..."
+        value={jd}
+        onChange={(e) => setJd(e.target.value)}
+      ></textarea>
+      <button
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+        onClick={handleJDSubmit}
+      >
+        Upload JD
+      </button>
+
+      <input
+        type="file"
+        multiple
+        accept="application/pdf"
+        onChange={handleResumeUpload}
+        className="mb-4"
+      />
+    </div>
+  )
+}
